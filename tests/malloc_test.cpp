@@ -1523,7 +1523,7 @@ TEST(malloc, realloc_mte_crash_b206701345) {
 
 void VerifyAllocationsAreZero(std::function<void*(size_t)> alloc_func, std::string function_name,
                               std::vector<size_t>& test_sizes, size_t max_allocations) {
-  // Vector of zero'd data used for comparisons. Make it twice the larges size.
+  // Vector of zero'd data used for comparisons. Make it twice the largest size.
   std::vector<char> zero(test_sizes.back() * 2, 0);
 
   SCOPED_TRACE(testing::Message() << function_name << " failed to zero memory");
@@ -1564,6 +1564,14 @@ void VerifyAllocationsAreZero(std::function<void*(size_t)> alloc_func, std::stri
 
 // Verify that small and medium allocations are always zero.
 TEST(malloc, zeroed_allocations_small_medium_sizes) {
+#if !defined(__BIONIC__)
+  GTEST_SKIP() << "Only valid on bionic";
+#endif
+
+  if (IsLowRamDevice()) {
+    GTEST_SKIP() << "Skipped on low memory devices.";
+  }
+
   constexpr size_t kMaxAllocations = 1024;
   std::vector<size_t> test_sizes = {16, 48, 128, 1024, 4096, 65536};
   VerifyAllocationsAreZero([](size_t size) -> void* { return malloc(size); }, "malloc", test_sizes,
@@ -1585,6 +1593,14 @@ TEST(malloc, zeroed_allocations_small_medium_sizes) {
 
 // Verify that large allocations are always zero.
 TEST(malloc, zeroed_allocations_large_sizes) {
+#if !defined(__BIONIC__)
+  GTEST_SKIP() << "Only valid on bionic";
+#endif
+
+  if (IsLowRamDevice()) {
+    GTEST_SKIP() << "Skipped on low memory devices.";
+  }
+
   constexpr size_t kMaxAllocations = 20;
   std::vector<size_t> test_sizes = {1000000, 2000000, 3000000, 4000000};
   VerifyAllocationsAreZero([](size_t size) -> void* { return malloc(size); }, "malloc", test_sizes,
@@ -1605,6 +1621,14 @@ TEST(malloc, zeroed_allocations_large_sizes) {
 }
 
 TEST(malloc, zeroed_allocations_realloc) {
+#if !defined(__BIONIC__)
+  GTEST_SKIP() << "Only valid on bionic";
+#endif
+
+  if (IsLowRamDevice()) {
+    GTEST_SKIP() << "Skipped on low memory devices.";
+  }
+
   // Vector of zero'd data used for comparisons.
   constexpr size_t kMaxMemorySize = 131072;
   std::vector<char> zero(kMaxMemorySize, 0);
